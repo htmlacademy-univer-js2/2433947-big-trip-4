@@ -1,4 +1,4 @@
-import {humanizeDueDate, humanizeDueTime, humanizeDuration} from '../utils.js';
+import {humanizeDueDate, humanizeDueTime, humanizeDuration} from '../utils/utils.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 function createListPointTemplate(point, totalPrice, destination, selectedOffersTemplate, isFavorite) {
@@ -54,17 +54,17 @@ export default class ListPointView extends AbstractView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
   }
 
+  #createSelectedOfferTemplate(offer) {
+    return `
+      <li class="event__offer">
+        <span class="event__offer-title">${offer.name}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${offer.price}</span>
+      </li>`;
+  }
+
   get #selectedOffersTemplate() {
-    let selectedOffersTemplate = '';
-    for (let i = 0; i < this.#selectedOffers.length; i++) {
-      selectedOffersTemplate += `
-        <li class="event__offer">
-          <span class="event__offer-title">${this.#selectedOffers[i].name}</span>
-          &plus;&euro;&nbsp;
-          <span class="event__offer-price">${this.#selectedOffers[i].price}</span>
-        </li>`;
-    }
-    return selectedOffersTemplate;
+    return this.#selectedOffers.map((offer) => this.#createSelectedOfferTemplate(offer)).join('');
   }
 
   get #totalPrice() {

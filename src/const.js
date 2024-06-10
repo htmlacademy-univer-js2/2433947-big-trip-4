@@ -1,6 +1,15 @@
-const POINT_COUNT = 4;
+const POINT_COUNT = 5;
 
 const DESTINATIONS = ['Paris', 'London', 'New York', 'Shanghai', 'Moscow'];
+
+const FILTERS = {
+  'Everything': POINT_COUNT,
+  'Future': POINT_COUNT,
+  'Present': POINT_COUNT,
+  'Past': POINT_COUNT
+};
+
+const DEFAULT_FILTER = 'Everything';
 
 const DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.',
@@ -31,4 +40,5 @@ const DEFAULT_POINT_DATA = {
   type: 'Flight'
 };
 
-export {POINT_COUNT, DESTINATIONS, DESCRIPTIONS, DATE_FORMAT, TIME_FORMAT, HOUR_IN_DAY, MINUTES_IN_HOUR, TYPES, DEFAULT_POINT_DATA};
+export {POINT_COUNT, DESTINATIONS, DESCRIPTIONS, DATE_FORMAT, TIME_FORMAT, HOUR_IN_DAY, MINUTES_IN_HOUR,
+  TYPES, DEFAULT_POINT_DATA, FILTERS, DEFAULT_FILTER};

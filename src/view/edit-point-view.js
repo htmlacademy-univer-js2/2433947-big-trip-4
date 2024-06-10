@@ -96,54 +96,47 @@ export default class EditPointView extends AbstractView {
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
   }
 
+  #createTypeTemplate(type) {
+    const isChecked = type === this.#point.type ? 'checked' : '';
+    return `
+      <div class="event__type-item">
+        <input id="event-type-${type}-${this.#point.id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${isChecked}>
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-${this.#point.id}">${type}</label>
+      </div>`;
+  }
+
   get #typesTemplate() {
-    let typesTemplate = '';
-    for (let i = 0; i < TYPES.length; i++) {
-      const isChecked = TYPES[i] === this.#point.type ? 'checked' : '';
-      typesTemplate += `
-        <div class="event__type-item">
-          <input id="event-type-${TYPES[i]}-${this.#point.id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${TYPES[i]}" ${isChecked}>
-          <label class="event__type-label  event__type-label--${TYPES[i]}" for="event-type-${TYPES[i]}-${this.#point.id}">${TYPES[i]}</label>
-        </div>`;
-    }
-    return typesTemplate;
+    return TYPES.map((type) => this.#createTypeTemplate(type)).join('');
   }
 
   get #destinationsTemplate() {
-    let destinationsTemplate = '';
-    for (let i = 0; i < DESTINATIONS.length; i++) {
-      destinationsTemplate += `
-      <option value="${DESTINATIONS[i]}"></option>`;
-    }
-    return destinationsTemplate;
+    return DESTINATIONS.map((destination) => `<option value="${destination}"></option>`).join('');
+  }
+
+  #createOfferTemplate(offer) {
+    const isChecked = offer.id in this.#point.offers ? 'checked' : '';
+    const offerShortName = offer.name.toLowerCase().split(' ').at(-1);
+    return `
+      <div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerShortName}-${this.#point.id}" type="checkbox" name="event-offer-${offerShortName}" ${isChecked}>
+        <label class="event__offer-label" for="event-offer-${offerShortName}-${this.#point.id}">
+          <span class="event__offer-title">${offer.name}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${offer.price}</span>
+        </label>
+      </div>`;
   }
 
   get #offersTemplate() {
-    let offersTemplate = '';
-    for (let i = 0; i < this.#offersByType.length; i++) {
-      const isChecked = this.#offersByType[i].id in this.#point.offers ? 'checked' : '';
-      const offerShortName = this.#offersByType[i].name.toLowerCase().split(' ').at(-1);
-      offersTemplate += `
-        <div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerShortName}-${this.#point.id}" type="checkbox" name="event-offer-${offerShortName}" ${isChecked}>
-          <label class="event__offer-label" for="event-offer-${offerShortName}-${this.#point.id}">
-            <span class="event__offer-title">${this.#offersByType[i].name}</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">${this.#offersByType[i].price}</span>
-          </label>
-        </div>`;
-    }
-    return offersTemplate;
+    return this.#offersByType.map((offer) => this.#createOfferTemplate(offer)).join('');
+  }
+
+  #createPictureTemplate(picture) {
+    return `<img class="event__photo" src="${picture.src}" alt="${picture.description}">`;
   }
 
   get #picturesTemplate() {
-    let picturesTemplate = '';
-    for (let i = 0; i < this.#destination.pictures.length; i++) {
-      const picture = this.#destination.pictures[i];
-      picturesTemplate += `
-        <img class="event__photo" src="${picture.src}" alt="${picture.description}">`;
-    }
-    return picturesTemplate;
+    return this.#destination.pictures.map((picture) => this.#createPictureTemplate(picture)).join('');
   }
 
   get template() {

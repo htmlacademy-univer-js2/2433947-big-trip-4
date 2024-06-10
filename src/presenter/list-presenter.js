@@ -1,6 +1,8 @@
 import ListView from '../view/list-view.js';
+import SortView from '../view/sort-view.js';
 import EditPointView from '../view/edit-point-view.js';
 import ListPointView from '../view/point-view.js';
+import NoPointsView from '../view/no-points-view.js';
 import {render, replace} from '../framework/render.js';
 import {getDestinationById, getOffersByType, getSelectedOffers} from '../mock/point.js';
 
@@ -17,11 +19,7 @@ export default class ListPresenter {
 
   init() {
     this.#points = [...this.#pointsModel.points];
-    render(this.#listComponent, this.#container);
-
-    for (let i = 0; i < this.#points.length; i++) {
-      this.#renderPoint(this.#points[i]);
-    }
+    this.#renderList();
   }
 
   #renderPoint(point) {
@@ -69,5 +67,17 @@ export default class ListPresenter {
     }
 
     render(pointComponent, this.#listComponent.element);
+  }
+
+  #renderList() {
+    if (this.#points.length === 0) {
+      render(new NoPointsView(), this.#container);
+      return;
+    }
+    render(new SortView(), this.#container);
+    render(this.#listComponent, this.#container);
+    for (let i = 0; i < this.#points.length; i++) {
+      this.#renderPoint(this.#points[i]);
+    }
   }
 }
