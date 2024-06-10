@@ -129,8 +129,13 @@ function getOffersByType(type) {
   return offers.find((offersByType) => offersByType.type === type).offers;
 }
 
-function getOfferById(offersByType, id) {
-  return offersByType.find((offer) => offer.id === id);
+function getSelectedOffers(offerIds, offersByType) {
+  const selectedOffers = [];
+  for (let i = 0; i < offerIds.length; i++ ) {
+    selectedOffers.push(offersByType.find((offer) => offer.id === offerIds[i]));
+  }
+
+  return selectedOffers;
 }
 
-export {getRandomPoint, getDestinationById, getOffersByType, getOfferById};
+export {getRandomPoint, getDestinationById, getOffersByType, getSelectedOffers};

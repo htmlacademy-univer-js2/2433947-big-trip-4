@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
-import {TYPES, DESTINATIONS} from '../const.js';
+import {TYPES, DESTINATIONS, DEFAULT_POINT_DATA} from '../const.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function editPointTemplate(point, destination, typesTemplate, offersTemplate, picturesTemplate, destinationsTemplate) {
   return `
@@ -49,6 +49,9 @@ function editPointTemplate(point, destination, typesTemplate, offersTemplate, pi
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
+          <button class="event__rollup-btn" type="button">
+            <span class="visually-hidden">Open event</span>
+          </button>
         </header>
         <section class="event__details">
           <section class="event__section  event__section--offers">
@@ -75,27 +78,38 @@ function editPointTemplate(point, destination, typesTemplate, offersTemplate, pi
   `;
 }
 
-export default class EditPointView {
-  constructor({pointData, destinationData, offersByType}) {
-    this.pointData = pointData;
-    this.destinationData = destinationData;
-    this.offersByType = offersByType;
+export default class EditPointView extends AbstractView {
+  #point;
+  #destination;
+  #offersByType;
+  #handleSubmit;
+  #handleClick;
+
+  constructor({point = DEFAULT_POINT_DATA, destination, offersByType, handleSubmit, handleClick}) {
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#offersByType = offersByType;
+    this.#handleSubmit = handleSubmit;
+    this.element.querySelector('form').addEventListener('submit', this.#submitHandler);
+    this.#handleClick = handleClick;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
   }
 
-  getTypesTemplate() {
+  get #typesTemplate() {
     let typesTemplate = '';
     for (let i = 0; i < TYPES.length; i++) {
-      const isChecked = TYPES[i] === this.pointData.type ? 'checked' : '';
+      const isChecked = TYPES[i] === this.#point.type ? 'checked' : '';
       typesTemplate += `
         <div class="event__type-item">
-          <input id="event-type-${TYPES[i]}-${this.pointData.id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${TYPES[i]}" ${isChecked}>
-          <label class="event__type-label  event__type-label--${TYPES[i]}" for="event-type-${TYPES[i]}-${this.pointData.id}">${TYPES[i]}</label>
+          <input id="event-type-${TYPES[i]}-${this.#point.id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${TYPES[i]}" ${isChecked}>
+          <label class="event__type-label  event__type-label--${TYPES[i]}" for="event-type-${TYPES[i]}-${this.#point.id}">${TYPES[i]}</label>
         </div>`;
     }
     return typesTemplate;
   }
 
-  getDestinationsTemplate() {
+  get #destinationsTemplate() {
     let destinationsTemplate = '';
     for (let i = 0; i < DESTINATIONS.length; i++) {
       destinationsTemplate += `
@@ -104,48 +118,46 @@ export default class EditPointView {
     return destinationsTemplate;
   }
 
-  getOffersTemplate() {
+  get #offersTemplate() {
     let offersTemplate = '';
-    for (let i = 0; i < this.offersByType.length; i++) {
-      const isChecked = this.offersByType[i].id in this.pointData.offers ? 'checked' : '';
-      const offerShortName = this.offersByType[i].name.toLowerCase().split(' ').at(-1);
+    for (let i = 0; i < this.#offersByType.length; i++) {
+      const isChecked = this.#offersByType[i].id in this.#point.offers ? 'checked' : '';
+      const offerShortName = this.#offersByType[i].name.toLowerCase().split(' ').at(-1);
       offersTemplate += `
         <div class="event__offer-selector">
-          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerShortName}-${this.pointData.id}" type="checkbox" name="event-offer-${offerShortName}" ${isChecked}>
-          <label class="event__offer-label" for="event-offer-${offerShortName}-${this.pointData.id}">
-            <span class="event__offer-title">${this.offersByType[i].name}</span>
+          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerShortName}-${this.#point.id}" type="checkbox" name="event-offer-${offerShortName}" ${isChecked}>
+          <label class="event__offer-label" for="event-offer-${offerShortName}-${this.#point.id}">
+            <span class="event__offer-title">${this.#offersByType[i].name}</span>
             &plus;&euro;&nbsp;
-            <span class="event__offer-price">${this.offersByType[i].price}</span>
+            <span class="event__offer-price">${this.#offersByType[i].price}</span>
           </label>
         </div>`;
     }
     return offersTemplate;
   }
 
-  getPicturesTemplate() {
+  get #picturesTemplate() {
     let picturesTemplate = '';
-    for (let i = 0; i < this.destinationData.pictures.length; i++) {
-      const picture = this.destinationData.pictures[i];
+    for (let i = 0; i < this.#destination.pictures.length; i++) {
+      const picture = this.#destination.pictures[i];
       picturesTemplate += `
         <img class="event__photo" src="${picture.src}" alt="${picture.description}">`;
     }
     return picturesTemplate;
   }
 
-  getTemplate() {
-    return editPointTemplate(this.pointData, this.destinationData, this.getTypesTemplate(),
-      this.getOffersTemplate(), this.getPicturesTemplate(), this.getDestinationsTemplate());
+  get template() {
+    return editPointTemplate(this.#point, this.#destination, this.#typesTemplate,
+      this.#offersTemplate, this.#picturesTemplate, this.#destinationsTemplate);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
+  #submitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleSubmit();
   }
 
-  removeElement() {
-    this.element = null;
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleClick();
   }
 }

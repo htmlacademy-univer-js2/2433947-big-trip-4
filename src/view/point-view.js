@@ -1,5 +1,5 @@
-import {createElement} from '../render.js';
 import {humanizeDueDate, humanizeDueTime, humanizeDuration} from '../utils.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createListPointTemplate(point, totalPrice, destination, selectedOffersTemplate, isFavorite) {
   return `
@@ -39,51 +39,53 @@ function createListPointTemplate(point, totalPrice, destination, selectedOffersT
   `;
 }
 
-export default class ListPointView {
-  constructor({pointData, destinationData, selectedOffersData}) {
-    this.pointData = pointData;
-    this.destinationData = destinationData;
-    this.selectedOffersData = selectedOffersData;
+export default class ListPointView extends AbstractView {
+  #point;
+  #destination;
+  #selectedOffers;
+  #handleClick;
+
+  constructor({point, destination, selectedOffers, handleClick}) {
+    super();
+    this.#point = point;
+    this.#destination = destination;
+    this.#selectedOffers = selectedOffers;
+    this.#handleClick = handleClick;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
   }
 
-  getSelectedOffersTemplate() {
+  get #selectedOffersTemplate() {
     let selectedOffersTemplate = '';
-    for (let i = 0; i < this.selectedOffersData.length; i++) {
+    for (let i = 0; i < this.#selectedOffers.length; i++) {
       selectedOffersTemplate += `
         <li class="event__offer">
-          <span class="event__offer-title">${this.selectedOffersData[i].name}</span>
+          <span class="event__offer-title">${this.#selectedOffers[i].name}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${this.selectedOffersData[i].price}</span>
+          <span class="event__offer-price">${this.#selectedOffers[i].price}</span>
         </li>`;
     }
     return selectedOffersTemplate;
   }
 
-  getTotalPrice() {
-    let totalPrice = this.pointData.basePrice;
-    for (let i = 0; i < this.selectedOffersData.length; i++) {
-      totalPrice += this.selectedOffersData[i].price;
+  get #totalPrice() {
+    let totalPrice = this.#point.basePrice;
+    for (let i = 0; i < this.#selectedOffers.length; i++) {
+      totalPrice += this.#selectedOffers[i].price;
     }
     return totalPrice;
   }
 
-  isFavorite() {
-    return this.pointData.isFavorite ? 'event__favorite-btn--active' : '';
+  #isFavorite() {
+    return this.#point.isFavorite ? 'event__favorite-btn--active' : '';
   }
 
-  getTemplate() {
-    return createListPointTemplate(this.pointData, this.getTotalPrice(), this.destinationData,
-      this.getSelectedOffersTemplate(), this.isFavorite());
+  get template() {
+    return createListPointTemplate(this.#point, this.#totalPrice, this.#destination,
+      this.#selectedOffersTemplate, this.#isFavorite);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
+  #clickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleClick();
   }
 }
