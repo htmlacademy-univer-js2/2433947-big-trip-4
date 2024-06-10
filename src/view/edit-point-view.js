@@ -154,10 +154,10 @@ export default class EditPointView extends AbstractView {
   #submitHandler = (evt) => {
     evt.preventDefault();
     this.#handleSubmit();
-  }
+  };
 
   #clickHandler = (evt) => {
     evt.preventDefault();
     this.#handleClick();
-  }
+  };
 }

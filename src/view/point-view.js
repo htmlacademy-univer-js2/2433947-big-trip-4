@@ -87,5 +87,5 @@ export default class ListPointView extends AbstractView {
   #clickHandler = (evt) => {
     evt.preventDefault();
     this.#handleClick();
-  }
+  };
 }
