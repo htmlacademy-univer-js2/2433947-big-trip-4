@@ -1,4 +1,4 @@
-import {humanizeDueDate, humanizeDueTime, humanizeDuration} from '../utils/utils.js';
+import {humanizeDueDate, humanizeDueTime, humanizeDuration} from '../utils/point.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 function createListPointTemplate(point, totalPrice, destination, selectedOffersTemplate, isFavorite) {
@@ -39,19 +39,23 @@ function createListPointTemplate(point, totalPrice, destination, selectedOffersT
   `;
 }
 
-export default class ListPointView extends AbstractView {
+export default class PointView extends AbstractView {
   #point;
   #destination;
   #selectedOffers;
-  #handleClick;
+  #handleOpenEditClick;
+  #handleFavoriteButtonClick;
 
-  constructor({point, destination, selectedOffers, handleClick}) {
+  constructor({point, destination, selectedOffers, handleOpenEditClick, handleFavoriteButtonClick}) {
     super();
     this.#point = point;
     this.#destination = destination;
     this.#selectedOffers = selectedOffers;
-    this.#handleClick = handleClick;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#clickHandler);
+    this.#handleOpenEditClick = handleOpenEditClick;
+    this.#handleFavoriteButtonClick = handleFavoriteButtonClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#openEditClickHandler);
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteButtonClickHandler);
   }
 
   #createSelectedOfferTemplate(offer) {
@@ -75,7 +79,7 @@ export default class ListPointView extends AbstractView {
     return totalPrice;
   }
 
-  #isFavorite() {
+  get #isFavorite() {
     return this.#point.isFavorite ? 'event__favorite-btn--active' : '';
   }
 
@@ -84,8 +88,13 @@ export default class ListPointView extends AbstractView {
       this.#selectedOffersTemplate, this.#isFavorite);
   }
 
-  #clickHandler = (evt) => {
+  #openEditClickHandler = (evt) => {
     evt.preventDefault();
-    this.#handleClick();
+    this.#handleOpenEditClick();
+  };
+
+  #favoriteButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteButtonClick();
   };
 }

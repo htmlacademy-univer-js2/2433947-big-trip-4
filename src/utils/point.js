@@ -30,12 +30,4 @@ function humanizeDuration(start, end) {
   }
 }
 
-function getRandomArrayElement(items) {
-  return items[Math.floor(Math.random() * items.length)];
-}
-
-function getRandomArbitrary(min, max) {
-  return Math.random() * (max - min) + min;
-}
-
-export {getRandomArrayElement, getRandomArbitrary, humanizeDueDate, humanizeDueTime, humanizeDuration};
+export {humanizeDueDate, humanizeDueTime, humanizeDuration};
