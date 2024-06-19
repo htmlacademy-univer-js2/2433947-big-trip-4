@@ -1,7 +1,7 @@
 import EditPointView from '../view/edit-point-view.js';
 import PointView from '../view/point-view.js';
 import {render, replace, remove} from '../framework/render.js';
-import {getDestinationById, getOffersByType, getSelectedOffers} from '../mock/point.js';
+import {getDestinationById, getOffersByType, getSelectedOffers, destinations} from '../mock/point.js';
 import {Mode} from '../const.js';
 
 export default class PointPresenter {
@@ -40,9 +40,10 @@ export default class PointPresenter {
     this.#pointEditComponent = new EditPointView({
       point: this.#point,
       destination,
+      destinations,
       offersByType,
       handleSubmit: this.#handleSubmit,
-      handleClick: this.#handleCloseEditClick
+      handleCloseEditClick: this.#handleCloseEditClick
     });
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
@@ -80,6 +81,7 @@ export default class PointPresenter {
       evt.preventDefault();
       this.#replaceEditFormToPoint();
       document.removeEventListener('keydown', this.#escKeyDownHandler);
+      this.#pointEditComponent.reset(this.#point);
     }
   };
 
@@ -94,6 +96,7 @@ export default class PointPresenter {
 
   #handleCloseEditClick = () => {
     this.#replaceEditFormToPoint();
+    this.#pointEditComponent.reset(this.#point);
   };
 
   #handleFavoriteButtonClick = () => {
