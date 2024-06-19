@@ -1,11 +1,14 @@
 import {TYPES, DESTINATIONS, DEFAULT_POINT_DATA} from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {getOffersByType, getDestinationById} from '../mock/point.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 function editPointTemplate(state) {
   const {point} = state;
   const offersByType = getOffersByType(point.type);
   const destination = getDestinationById(point.destination);
+  const isSubmitDisabled = point.dateFrom === null && point.dateTo === null;
   return `
     <li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -51,7 +54,7 @@ function editPointTemplate(state) {
             <input class="event__input  event__input--price" id="event-price-${point.id}" type="text" name="event-price" value="${point.basePrice}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled}>Save</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
           <button class="event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
@@ -126,9 +129,11 @@ function createPicturesTemplate(destination) {
 }
 
 export default class EditPointView extends AbstractStatefulView {
-  #destinations;
-  #handleSubmit;
-  #handleCloseEditClick;
+  #destinations = null;
+  #handleSubmit = null;
+  #handleCloseEditClick = null;
+  #datepickerFrom = null;
+  #datepickerTo = null;
 
   constructor({point = DEFAULT_POINT_DATA, destinations, handleSubmit, handleCloseEditClick}) {
     super();
@@ -140,11 +145,79 @@ export default class EditPointView extends AbstractStatefulView {
   }
 
   reset(point) {
-    return this.updateElement({point});
+    this.updateElement(
+      EditPointView.parsePointToState(point),
+    );
   }
 
   get template() {
     return editPointTemplate(this._state);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
+  #dateFromCloseHandler = ([userDate]) => {
+    this._setState({
+      point: {
+        ...this._state.point,
+        dateFrom: userDate,
+      }
+    });
+    this.#datepickerTo.set('minDate', this._state.point.dateFrom);
+  };
+
+  #dateToCloseHandler = ([userDate]) => {
+    this._setState({
+      point: {
+        ...this._state.point,
+        dateTo: userDate,
+      }
+    });
+    this.#datepickerFrom.set('maxDate', this._state.point.dateTo);
+  };
+
+  #setDatepickers() {
+    const [dateFromElement, dateToElement] = this.element.querySelectorAll('.event__input--time');
+    const commonConfig = {
+      dateFormat: 'd/m/y H:i',
+      enableTime: true,
+      locales: {
+        firstDayOfWeek: 1
+      },
+      'time_24hr': true
+    };
+
+    this.#datepickerFrom = flatpickr(
+      dateFromElement,
+      {
+        ...commonConfig,
+        defaultDate: this._state.point.dateFrom,
+        onClose: this.#dateFromCloseHandler,
+        maxDate: this._state.point.dateTo
+      },
+    );
+
+    this.#datepickerFrom = flatpickr(
+      dateToElement,
+      {
+        ...commonConfig,
+        defaultDate: this._state.point.dateTo,
+        onClose: this.#dateToCloseHandler,
+        minDate: this._state.point.dateFrom
+      },
+    );
   }
 
   _restoreHandlers() {
@@ -154,6 +227,8 @@ export default class EditPointView extends AbstractStatefulView {
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
     this.element.querySelector('.event__available-offers')?.addEventListener('change', this.#offersChangeHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#priceChangeHandler);
+
+    this.#setDatepickers();
   }
 
   static parsePointToState = ({point}) => ({point});
