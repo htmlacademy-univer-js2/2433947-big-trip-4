@@ -25,7 +25,7 @@ const mockPoints = [
   {
     id: 3,
     basePrice: 75,
-    dateFrom: '2019-07-15T7:55',
+    dateFrom: '2019-07-12T7:55',
     dateTo: '2019-07-15T14:20',
     destination: 2,
     isFavorite: true,
@@ -35,8 +35,8 @@ const mockPoints = [
   {
     id: 4,
     basePrice: 75,
-    dateFrom: '2019-07-15T7:55',
-    dateTo: '2019-07-15T14:20',
+    dateFrom: '2025-07-15T7:55',
+    dateTo: '2025-07-15T14:20',
     destination: 2,
     isFavorite: true,
     offers: [0],
@@ -45,8 +45,8 @@ const mockPoints = [
   {
     id: 5,
     basePrice: 5,
-    dateFrom: '2019-07-15T7:55',
-    dateTo: '2019-07-15T14:20',
+    dateFrom: '2019-07-14T7:55',
+    dateTo: '2025-07-15T14:20',
     destination: 2,
     isFavorite: true,
     offers: [0],
@@ -149,7 +149,8 @@ function getOffersByType(type) {
   return offers.find((offersByType) => offersByType.type === type).offers;
 }
 
-function getSelectedOffers(offerIds, offersByType) {
+function getSelectedOffers(offerIds, type) {
+  const offersByType = getOffersByType(type);
   const selectedOffers = [];
   for (let i = 0; i < offerIds.length; i++ ) {
     selectedOffers.push(offersByType.find((offer) => offer.id === offerIds[i]));
