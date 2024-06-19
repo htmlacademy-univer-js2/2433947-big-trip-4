@@ -1,7 +1,10 @@
 import {humanizeDueDate, humanizeDueTime, humanizeDuration, calculateTotalPrice} from '../utils/point.js';
+import {getSelectedOffers} from '../mock/point.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
-function createListPointTemplate(point, totalPrice, destination, selectedOffersTemplate, isFavorite) {
+function createListPointTemplate(point, destination) {
+  const selectedOffers = getSelectedOffers(point.offers, point.type);
+  const isFavorite = point.isFavorite ? 'event__favorite-btn--active' : '';
   return `
     <li class="trip-events__item">
       <div class="event">
@@ -19,11 +22,11 @@ function createListPointTemplate(point, totalPrice, destination, selectedOffersT
           <p class="event__duration">${humanizeDuration(point.dateFrom, point.dateTo)}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${totalPrice}</span>
+          &euro;&nbsp;<span class="event__price-value">${calculateTotalPrice(point, selectedOffers)}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">
-          ${selectedOffersTemplate}
+          ${createSelectedOffersTemplate(selectedOffers)}
         </ul>
         <button class="event__favorite-btn ${isFavorite}" type="button">
           <span class="visually-hidden">Add to favorite</span>
@@ -39,18 +42,29 @@ function createListPointTemplate(point, totalPrice, destination, selectedOffersT
   `;
 }
 
+function createSelectedOfferTemplate(offer) {
+  return `
+    <li class="event__offer">
+      <span class="event__offer-title">${offer.name}</span>
+      &plus;&euro;&nbsp;
+      <span class="event__offer-price">${offer.price}</span>
+    </li>`;
+}
+
+function createSelectedOffersTemplate(selectedOffers) {
+  return selectedOffers.map((offer) => createSelectedOfferTemplate(offer)).join('');
+}
+
 export default class PointView extends AbstractView {
   #point;
   #destination;
-  #selectedOffers;
   #handleOpenEditClick;
   #handleFavoriteButtonClick;
 
-  constructor({point, destination, selectedOffers, handleOpenEditClick, handleFavoriteButtonClick}) {
+  constructor({point, destination, handleOpenEditClick, handleFavoriteButtonClick}) {
     super();
     this.#point = point;
     this.#destination = destination;
-    this.#selectedOffers = selectedOffers;
     this.#handleOpenEditClick = handleOpenEditClick;
     this.#handleFavoriteButtonClick = handleFavoriteButtonClick;
 
@@ -58,30 +72,8 @@ export default class PointView extends AbstractView {
     this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteButtonClickHandler);
   }
 
-  #createSelectedOfferTemplate(offer) {
-    return `
-      <li class="event__offer">
-        <span class="event__offer-title">${offer.name}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offer.price}</span>
-      </li>`;
-  }
-
-  get #selectedOffersTemplate() {
-    return this.#selectedOffers.map((offer) => this.#createSelectedOfferTemplate(offer)).join('');
-  }
-
-  get #totalPrice() {
-    return calculateTotalPrice(this.#point, this.#selectedOffers);
-  }
-
-  get #isFavorite() {
-    return this.#point.isFavorite ? 'event__favorite-btn--active' : '';
-  }
-
   get template() {
-    return createListPointTemplate(this.#point, this.#totalPrice, this.#destination,
-      this.#selectedOffersTemplate, this.#isFavorite);
+    return createListPointTemplate(this.#point, this.#destination);
   }
 
   #openEditClickHandler = (evt) => {

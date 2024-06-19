@@ -1,5 +1,5 @@
 import {getRandomArrayElement, getRandomArbitrary} from '../utils/common.js';
-import {DESTINATIONS, DESCRIPTIONS} from '../const.js';
+import {DESCRIPTIONS} from '../const.js';
 
 const mockPoints = [
   {
@@ -58,7 +58,7 @@ const destinations = [
   {
     id: 0,
     description: getRandomArrayElement(DESCRIPTIONS),
-    name: getRandomArrayElement(DESTINATIONS),
+    name: 'London',
     pictures: [
       {
         src: `https://loremflickr.com/248/152?random=${getRandomArbitrary(1, 15)}`,
@@ -73,7 +73,7 @@ const destinations = [
   {
     id: 1,
     description: getRandomArrayElement(DESCRIPTIONS),
-    name: getRandomArrayElement(DESTINATIONS),
+    name: 'Paris',
     pictures: [
       {
         src: `https://loremflickr.com/248/152?random=${getRandomArbitrary(1, 15)}`,
@@ -84,7 +84,7 @@ const destinations = [
   {
     id: 2,
     description: getRandomArrayElement(DESCRIPTIONS),
-    name: getRandomArrayElement(DESTINATIONS),
+    name: 'Moscow',
     pictures: []
   },
 ];
@@ -159,4 +159,4 @@ function getSelectedOffers(offerIds, type) {
   return selectedOffers;
 }
 
-export {getRandomPoint, getDestinationById, getOffersByType, getSelectedOffers, mockPoints};
+export {getRandomPoint, getDestinationById, getOffersByType, getSelectedOffers, mockPoints, destinations};
