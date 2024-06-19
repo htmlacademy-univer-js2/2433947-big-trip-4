@@ -1,4 +1,4 @@
-import {humanizeDueDate, humanizeDueTime, humanizeDuration} from '../utils/point.js';
+import {humanizeDueDate, humanizeDueTime, humanizeDuration, calculateTotalPrice} from '../utils/point.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 function createListPointTemplate(point, totalPrice, destination, selectedOffersTemplate, isFavorite) {
@@ -72,11 +72,7 @@ export default class PointView extends AbstractView {
   }
 
   get #totalPrice() {
-    let totalPrice = this.#point.basePrice;
-    for (let i = 0; i < this.#selectedOffers.length; i++) {
-      totalPrice += this.#selectedOffers[i].price;
-    }
-    return totalPrice;
+    return calculateTotalPrice(this.#point, this.#selectedOffers);
   }
 
   get #isFavorite() {

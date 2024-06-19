@@ -2,11 +2,7 @@ import EditPointView from '../view/edit-point-view.js';
 import PointView from '../view/point-view.js';
 import {render, replace, remove} from '../framework/render.js';
 import {getDestinationById, getOffersByType, getSelectedOffers} from '../mock/point.js';
-
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
-};
+import {Mode} from '../const.js';
 
 export default class PointPresenter {
   #container;
@@ -36,7 +32,7 @@ export default class PointPresenter {
     this.#pointComponent = new PointView({
       point: this.#point,
       destination,
-      selectedOffers: getSelectedOffers(this.#point.offers, offersByType),
+      selectedOffers: getSelectedOffers(this.#point.offers, this.#point.type),
       handleOpenEditClick: this.#handleOpenEditClick,
       handleFavoriteButtonClick: this.#handleFavoriteButtonClick
     });
@@ -111,4 +107,8 @@ export default class PointPresenter {
     }
   }
 
+  destroy() {
+    remove(this.#pointComponent);
+    remove(this.#pointEditComponent);
+  }
 }

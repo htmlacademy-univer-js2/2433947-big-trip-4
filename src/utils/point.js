@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import {DATE_FORMAT, TIME_FORMAT, HOUR_IN_DAY, MINUTES_IN_HOUR} from '../const';
+import {getSelectedOffers} from '../mock/point';
 
 function humanizeDueDate(dueDate) {
   return dueDate ? dayjs(dueDate).format(DATE_FORMAT) : '';
@@ -9,8 +10,12 @@ function humanizeDueTime(dueDate) {
   return dueDate ? dayjs(dueDate).format(TIME_FORMAT) : '';
 }
 
+function calculateDuration(start, end) {
+  return start && end ? dayjs(end).diff(start, 'minute') : '';
+}
+
 function humanizeDuration(start, end) {
-  const duration = start && end ? dayjs(end).diff(start, 'minute') : '';
+  const duration = calculateDuration(start, end);
   if (duration === '') {
     return '';
   }
@@ -30,4 +35,61 @@ function humanizeDuration(start, end) {
   }
 }
 
-export {humanizeDueDate, humanizeDueTime, humanizeDuration};
+function calculateTotalPrice(point, selectedOffers) {
+  let totalPrice = point.basePrice;
+  for (const offer of selectedOffers) {
+    totalPrice += offer.price;
+  }
+  return totalPrice;
+}
+
+function sortByTime(pointA, pointB) {
+  const durationA = calculateDuration(pointA.dateFrom, pointA.dateTo);
+  const durationB = calculateDuration(pointB.dateFrom, pointB.dateTo);
+
+  if (durationA === durationB) {
+    return 0;
+  }
+
+  if (durationA > durationB) {
+    return 1;
+  }
+
+  if (durationB > durationA) {
+    return -1;
+  }
+}
+
+function sortByPrice(pointA, pointB) {
+  const priceA = calculateTotalPrice(pointA, getSelectedOffers(pointA.offers, pointA.type));
+  const priceB = calculateTotalPrice(pointB, getSelectedOffers(pointB.offers, pointB.type));
+  if (priceA === priceB) {
+    return 0;
+  }
+
+  if (priceA > priceB) {
+    return 1;
+  }
+
+  if (priceB > priceA) {
+    return -1;
+  }
+}
+
+function sortByDay(pointA, pointB) {
+  const startA = pointA.dateFrom;
+  const startB = pointB.dateFrom;
+  if (dayjs(startA).isSame(dayjs(startB))) {
+    return 0;
+  }
+
+  if (dayjs(startB).isBefore(dayjs(startA))) {
+    return 1;
+  }
+
+  if (dayjs(startA).isBefore(dayjs(startB))) {
+    return -1;
+  }
+}
+
+export {humanizeDueDate, humanizeDueTime, humanizeDuration, sortByDay, sortByTime, sortByPrice, calculateTotalPrice};

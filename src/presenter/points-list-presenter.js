@@ -4,19 +4,25 @@ import NoPointsView from '../view/no-points-view.js';
 import PointPresenter from './point-presenter.js';
 import {render} from '../framework/render.js';
 import {updateItem} from '../utils/common.js';
+import {SortType} from '../const.js';
+import {sortByDay, sortByPrice, sortByTime} from '../utils/point.js';
 
 export default class PointsListPresenter {
   #listComponent = new ListView();
+  #pointPresenters = new Map();
+  #currentSortType = SortType.DAY;
+  #sortComponent;
   #container;
   #points;
-  #pointPresenters = new Map();
+  #sourcedPoints;
 
   constructor({container}) {
     this.#container = container;
   }
 
   init(points) {
-    this.#points = points;
+    this.#points = [...points].sort(sortByDay);
+    this.#sourcedPoints = [...this.#points];
     this.#renderPointsList();
   }
 
@@ -32,12 +38,21 @@ export default class PointsListPresenter {
     }
   }
 
+  #clearPoints() {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
+  }
+
   #renderNoPoints() {
     render(new NoPointsView(), this.#container);
   }
 
   #renderSort() {
-    render(new SortView(), this.#container);
+    this.#sortComponent = new SortView({
+      handleSortTypeChange: this.#handleSortTypeChange
+    });
+
+    render(this.#sortComponent, this.#container);
   }
 
   #renderPointsList() {
@@ -54,9 +69,35 @@ export default class PointsListPresenter {
   #handlePointChange = (updatedPoint) => {
     this.#points = updateItem(this.#points, updatedPoint);
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
+    this.#sourcedPoints = updateItem(this.#sourcedPoints, updatedPoint);
   };
 
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #sortPoints(sortType) {
+    switch (sortType) {
+      case SortType.PRICE:
+        this.#points.sort(sortByPrice);
+        break;
+      case SortType.TIME:
+        this.#points.sort(sortByTime);
+        break;
+      default:
+        this.#points = [...this.#sourcedPoints];
+    }
+
+    this.#currentSortType = sortType;
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearPoints();
+    this.#renderPoints();
   };
 }
