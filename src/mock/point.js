@@ -1,9 +1,9 @@
-import {getRandomArrayElement, getRandomArbitrary} from '../utils/utils.js';
+import {getRandomArrayElement, getRandomArbitrary} from '../utils/common.js';
 import {DESTINATIONS, DESCRIPTIONS} from '../const.js';
 
 const mockPoints = [
   {
-    id: 0,
+    id: 1,
     basePrice: 1100,
     dateFrom: '2019-07-10T22:10',
     dateTo: '2019-07-11T23:00',
@@ -13,7 +13,7 @@ const mockPoints = [
     type: 'Train'
   },
   {
-    id: 1,
+    id: 2,
     basePrice: 120,
     dateFrom: '2019-07-13T12:00',
     dateTo: '2019-07-13T12:45',
@@ -23,8 +23,28 @@ const mockPoints = [
     type: 'Taxi'
   },
   {
-    id: 2,
+    id: 3,
     basePrice: 75,
+    dateFrom: '2019-07-15T7:55',
+    dateTo: '2019-07-15T14:20',
+    destination: 2,
+    isFavorite: true,
+    offers: [0],
+    type: 'Sightseeing'
+  },
+  {
+    id: 4,
+    basePrice: 75,
+    dateFrom: '2019-07-15T7:55',
+    dateTo: '2019-07-15T14:20',
+    destination: 2,
+    isFavorite: true,
+    offers: [0],
+    type: 'Sightseeing'
+  },
+  {
+    id: 5,
+    basePrice: 5,
     dateFrom: '2019-07-15T7:55',
     dateTo: '2019-07-15T14:20',
     destination: 2,
@@ -138,4 +158,4 @@ function getSelectedOffers(offerIds, offersByType) {
   return selectedOffers;
 }
 
-export {getRandomPoint, getDestinationById, getOffersByType, getSelectedOffers};
+export {getRandomPoint, getDestinationById, getOffersByType, getSelectedOffers, mockPoints};
